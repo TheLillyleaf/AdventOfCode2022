@@ -3,7 +3,7 @@ import * as fs from "fs"
 //Day 1 a
 
 const day1a = fs
-	.readFileSync("./dec1/input")
+	.readFileSync("./input")
 	.toString()
 	.split("\n\n")
 	.map((string: string) => string.split("\n"))
