@@ -67,17 +67,17 @@ function points(hand: string): number {
 	}
 }
 
-// const result2A = fs
-// 	.readFileSync("./input")
-// 	.toString()
-// 	.trim()
-// 	.split("\n")
-// 	.map(row => row.split(" "))
-// 	.reduce((score, round) => {
-// 		const handScore = calculate1A(round)
-// 		return handScore + score
-// 	}, 0)
-// console.log(` Day 2 part1 result: ${result2A}`)
+const result2A = fs
+	.readFileSync("./input")
+	.toString()
+	.trim()
+	.split("\n")
+	.map(row => row.split(" "))
+	.reduce((score, round) => {
+		const handScore = calculate1A(round)
+		return handScore + score
+	}, 0)
+console.log(` Day 2 part1 result: ${result2A}`)
 const result2B = fs
 	.readFileSync("./input")
 	.toString()
