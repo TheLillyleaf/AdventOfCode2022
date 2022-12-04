@@ -1,92 +1,72 @@
 import * as fs from "fs"
 
-function calculate1A(input: string[]): number {
-	const computer = determineHand(input[0])
-	const human = determineHand(input[1])
+class Rucksack {
+	compartmentA: string[] = []
+	compartmentB: string[] = []
+	public prio = 0
+	constructor(private array: string[]) {
+		this.compartmentA = array.slice(0, array.length / 2)
+		this.compartmentB = array.slice(array.length / 2)
 
-	if (computer == human) {
-		return calculateRoundPoints("draw") + points(human)
+		console.log(
+			`first array ${array} length: ${array.length}. Comp A: ${this.compartmentA}. Comp B: ${
+				this.compartmentB
+			}. contains duplicates: ${this.checkDuplicate()}`
+		)
+
+		if (!this.checkDuplicate()) console.log("false")
 	}
-	if (computer == "rock" && human == "scissor") {
-		return calculateRoundPoints("loss") + points(human)
+
+	checkDuplicate(): boolean {
+		return this.compartmentA.reduce(
+			(prev, char) => (this.compartmentB.includes(char) ? (prev = this.determinePrio(char)) : prev),
+			false
+		)
 	}
-	if (computer == "scissor" && human == "paper") {
-		return calculateRoundPoints("loss") + points(human)
-	}
-	if (computer == "paper" && human == "rock") {
-		return calculateRoundPoints("loss") + points(human)
-	} else {
-		return calculateRoundPoints("win") + points(human)
-	}
-}
+	determinePrio(char: string): boolean {
+		this.prio = `_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`.indexOf(char)
 
-function calculate2B(input: string[]): number {
-	const computer = determineHand(input[0])
-	const outcome = determineOutcome(input[1])
-
-	if (computer == "rock" && outcome == 6) return outcome + points("paper")
-	if (computer == "rock" && outcome == 0) return outcome + points("scissor")
-	if (computer == "rock" && outcome == 3) return outcome + points("rock")
-	if (computer == "paper" && outcome == 6) return outcome + points("scissor")
-	if (computer == "paper" && outcome == 0) return outcome + points("rock")
-	if (computer == "paper" && outcome == 3) return outcome + points("paper")
-	if (computer == "scissor" && outcome == 6) return outcome + points("rock")
-	if (computer == "scissor" && outcome == 0) return outcome + points("paper")
-	if (computer == "scissor" && outcome == 3) return outcome + points("scissor")
-	return 0
-}
-
-function calculateRoundPoints(result: string): number {
-	if (result == "draw") return 3
-	if (result == "win") return 6
-	return 0
-}
-
-function determineHand(hand: string): string {
-	const rock = ["A", "X"]
-	const paper = ["B", "Y"]
-	const scissor = ["C", "Z"]
-	if (rock.includes(hand)) return "rock"
-	if (paper.includes(hand)) return "paper"
-	return "scissor"
-}
-
-function determineOutcome(outcome: string): number {
-	if (outcome == "Y") return calculateRoundPoints("draw")
-	if (outcome == "X") return calculateRoundPoints("loss")
-	return calculateRoundPoints("win")
-}
-
-function points(hand: string): number {
-	if (hand == "rock") {
-		return 1
-	} else if (hand == "paper") {
-		return 2
-	} else {
-		return 3
+		return true
 	}
 }
 
-const result2A = fs
+const day3aInput = fs
 	.readFileSync("./input")
 	.toString()
 	.trim()
 	.split("\n")
-	.map(row => row.split(" "))
-	.reduce((score, round) => {
-		const handScore = calculate1A(round)
-		return handScore + score
-	}, 0)
-console.log(` Day 2 part1 result: ${result2A}`)
-const result2B = fs
-	.readFileSync("./input")
-	.toString()
-	.trim()
-	.split("\n")
-	.map(row => row.split(" "))
-	.reduce((score, round) => {
-		const handScore = calculate2B(round)
-		return handScore + score
-	}, 0)
+	.map(array => new Rucksack(array.split("")))
+	.reduce((score, rucksack) => score + rucksack.prio, 0)
 
-console.log(` Day 2 part2 result: ${result2B}`)
+const day3bInput = fs.readFileSync("./input").toString().trim().split("\n")
+
+console.log(`Day 3A score: ${day3aInput}`)
+
+const t: string[] = []
+
+for (let i = 0; i < day3bInput.length; i += 3) {
+	const a = day3bInput[i]
+	const b = day3bInput[i + 1]
+	const c = day3bInput[i + 2]
+	const ab: string[] = []
+	const bc: string[] = []
+
+	for (const ch of a) {
+		if (b.includes(ch)) ab.push(ch)
+	}
+	for (const ch of b) {
+		if (c.includes(ch)) bc.push(ch)
+	}
+
+	for (const i of ab) {
+		if (bc.includes(i)) {
+			t.push(i)
+			break
+		}
+	}
+}
+let total = 0
+for (const i of t) {
+	total += `_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`.indexOf(i)
+}
+console.log(`Day 3B score: ${total}`)
