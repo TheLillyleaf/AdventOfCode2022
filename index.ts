@@ -1,13 +1,15 @@
-import { readFileSync } from "fs"
+import * as fs from "fs"
 import { resolve } from "path"
 
 type S<T> = Array<Array<T>>
 type F = (c: S<string>, l: S<number>) => S<string>
 
-const [x, y] = readFileSync(resolve("./input"))
+const [x, y] = fs
+	.readFileSync(resolve("./input"))
 	.toString()
 	.split("\n\n")
 	.map(v => v.split("\n"))
+
 const j = y.map(v =>
 	v
 		.split(" ")

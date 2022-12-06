@@ -1,3 +1,3 @@
-# Day 1
+# Day 5
 
-Used two one liners to create arrays and calculate the values.
+Not my solution. Could not find a simple solution so took someone elses
