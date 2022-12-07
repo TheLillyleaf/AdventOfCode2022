@@ -33,6 +33,5 @@ const input = fs
 
 input.forEach(line => {
 	if (line[0] == "$" && line[1] == "cd") {
-
 	}
 })
