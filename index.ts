@@ -1,37 +1,52 @@
 import * as fs from "fs"
 
-const day6A = fs
-	.readFileSync("./input")
-	.toString()
-	.trim()
-	.split("")
-	.reduce((result, curr, i, day1b) => {
-		const temp = day1b.slice(i, i + 4)
-		const s = new Set()
+class Dir {
+	public size: number
+	constructor(public name: string) {}
 
-		temp.forEach(element => s.add(element))
+	countSize(data: string[]) {
+		this.size = data.reduce((size, curr) => {
+			const fileSize = +curr.split(" ")[0] + size
+			if (!isNaN(fileSize)) {
+				return fileSize
+			} else {
+				return 0
+			}
+		}, 0)
 
-		if (s.size == temp.length && result <= 0) {
-			return result + (i + 4)
+		console.log(`Dir ${this.name} has size: ${this.size}`)
+	}
+}
+
+const day7a = fs.readFileSync("./input").toString().trim().split("\n")
+
+const dirs: Dir[] = []
+day7a.forEach((value, i) => {
+	try {
+		const temp = value.split(" ")
+		if (temp[0] == "$" && temp[1] == "cd" && temp[2] != "/" && day7a[i + 2].split(" ")[0] != "$") {
+			const dir = new Dir(temp[2])
+			dirs.push(dir)
+			let counter = 2
+			if (day7a[i + counter] != "") {
+				while (day7a[i + counter][0] != "$") {
+					const test = day7a[i + counter]
+					counter++
+				}
+
+				dir.countSize(day7a.splice(i + 2, counter - 2))
+			}
 		}
-		return result
-	}, 0)
-const day6B = fs
-	.readFileSync("./input")
-	.toString()
-	.trim()
-	.split("")
-	.reduce((result, curr, i, day1b) => {
-		const temp = day1b.slice(i, i + 14)
-		const s = new Set()
+	} catch (error) {
+		console.log(error)
+	}
+})
 
-		temp.forEach(element => s.add(element))
-
-		if (s.size == temp.length && result <= 0) {
-			return result + (i + 14)
-		}
-		return result
+const result = dirs
+	.filter(dir => dir.size <= 100000)
+	.reduce((totalSize, dir) => {
+		console.log(`Dir ${dir.name} has size : ${dir.size}`)
+		return dir.size + totalSize
 	}, 0)
 
-console.log(`Day 6 A result is: ${day6A}`)
-console.log(`Day 6 B result is: ${day6B}`)
+console.log(result)
