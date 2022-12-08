@@ -1,79 +1,64 @@
-import * as fs from "fs/promises"
+import * as fs from "fs"
 
-async function main() {
-	const input = (await fs.readFile("./input")).toString().split("\n")
+const input = fs
+	.readFileSync("./input")
+	.toString()
+	.trim()
+	.split("\n")
+	.map(line => line.split(""))
 
-	// Flattening the FileTree
-	const currPath: string[] = []
-	const fileTree: { [key: string]: string[] } = {}
-	for (let i = 0; i < input.length; i++) {
-		if (input[i].includes("$ cd") && input[i] !== "$ cd ..") {
-			currPath.push(input[i].split(" ")[2])
-		} else if (input[i] === "$ cd ..") {
-			currPath.pop()
-		} else if (input[i] === "$ ls") {
-			i++
-			if (!fileTree[currPath.join(" ")]) {
-				fileTree[currPath.join(" ")] = []
-			}
-			while (i < input.length && !input[i].includes("$ cd")) {
-				if (input[i].includes("dir")) {
-					const dir = currPath.join(" ") + " " + input[i].split(" ")[1]
-					fileTree[currPath.join(" ")].push(dir)
-				} else {
-					fileTree[currPath.join(" ")].push(input[i])
+class Grid {
+	public visibleTrees = 0
+	constructor(public coordinates: Node[][]) {}
+
+	printGrid() {
+		this.coordinates.forEach(line => console.log(line.map(node => node.value)))
+		this.coordinates.forEach(line => console.log(line.map(node => node.edge)))
+	}
+	setNeighbors() {
+		for (let i = 0; i < this.coordinates.length; i++) {
+			for (let ii = 0; ii < this.coordinates[i].length; ii++) {
+				const curNode = this.coordinates[i][ii]
+				const leftN: Node | undefined = this.coordinates[curNode.coordinate[0] - 1][curNode.coordinate[1]]
+
+				if (leftN) {
+					curNode.neighbor?.push(leftN)
 				}
-				i++
 			}
-			i--
-			continue
 		}
 	}
-
-	// Calculating the Size of Each Directory
-	const sizeObj: { [key: string]: number } = {}
-	const keys = Object.keys(fileTree)
-	keys.forEach(key => {
-		sizeObj[key] = calculateSize(key, fileTree)
-	})
-
-	// PART 1
-	const sizes: number[] = []
-	let part1 = 0
-	Object.values(sizeObj).forEach((size, idx) => {
-		if (size <= 100000) {
-			sizes.push(size)
-			part1 += size
-		}
-	})
-	console.log("PART 1 : ", part1)
-
-	// PART 2
-	const updateSize = 30000000
-	const currentFree = 70000000 - sizeObj["/"]
-	const required = updateSize - currentFree
-	// console.log("REQUIRED SPACE : ", required);
-	let smallest = Infinity
-	Object.values(sizeObj).forEach(size => {
-		if (size < Infinity && size > required) {
-			smallest = size
-		}
-	})
-	console.log("PART 2 : ", smallest)
 }
 
-// Calculate Size of Each Dir
-function calculateSize(key: string, fileTree: { [key: string]: string[] }) {
-	let size = 0
-	for (let i = 0; i < fileTree[key].length; i++) {
-		const curr = fileTree[key][i]
-		if (curr.includes("/")) {
-			size += calculateSize(curr, fileTree)
+class Node {
+	public visibility: boolean
+	constructor(
+		readonly value: number,
+		readonly edge: boolean,
+		readonly coordinate: [number, number],
+		readonly neighbor?: Node[]
+	) {}
+
+	setVisibility(visible: boolean) {
+		this.visibility = visible
+	}
+}
+
+const nodes: Node[][] = []
+for (let i = 0; i < input.length; i++) {
+	const line: Node[] = []
+	for (let ii = 0; ii < input[i].length; ii++) {
+		if (i == 0 || ii == 0 || ii == input[i].length - 1 || i == input.length - 1) {
+			const tempNode = new Node(+input[i][ii], true, [i, ii])
+			tempNode.setVisibility(true)
+			line.push(tempNode)
 		} else {
-			size += parseInt(curr.split(" ")[0])
+			const tempNode = new Node(+input[i][ii], false, [i, ii])
+			line.push(tempNode)
 		}
 	}
-	return size
+	nodes.push(line)
 }
 
-main()
+const grid = new Grid(nodes)
+grid.printGrid()
+grid.setNeighbors()
